@@ -7,6 +7,7 @@ import { DEFAULT_ERROR_DIMENSIONS } from "../../constants/pert.constants";
 import { usePertDimensions } from "../../hooks/usePertDimensions";
 import { FONT_SIZES } from "../../constants/font.constants";
 import { Task, TaskInput } from "../../types/global.types";
+import { taskSelectionService } from "../../context/taskSelection";
 
 export interface PertChartProps {
   tasks: TaskInput[];
@@ -15,46 +16,37 @@ export interface PertChartProps {
   onSelect?: (task: Task) => void;
 }
 
-let externalSetSelectedTask: {
-  setter: React.Dispatch<React.SetStateAction<string | null>>;
-  onSelect: ((task: any) => void) | undefined;
-  getTask: ((task: string) => Task | undefined) | undefined;
-} | null = null;
-
-export const setSelectedTask = (taskKey: string | null) => {
-  if (!externalSetSelectedTask) return;
-
-  const { setter, onSelect, getTask } = externalSetSelectedTask;
-
-  if (!taskKey) {
-    setter(null);
-    onSelect?.(null);
-    return;
-  }
-
-  const task = getTask?.(taskKey) ?? null;
-  onSelect?.(task);
-  setter(task ? taskKey : null);
-};
-
 export const PertChart: React.FC<PertChartProps> = ({ tasks, onSelect, styles }) => {
   const { pertData, calculatePertResults, error } = usePertContext();
   const tasksHashRef = useRef<string>();
   const [selectedTask, setSelectedTaskState] = useState<string | null>(null);
   const [hoveredTask, setHoveredTaskState] = useState<string | null>(null);
 
-  const getTask = (taskkey: string): Task | undefined => {
-    return pertData.tasks.get(taskkey);
-  };
+  useEffect(() => {
+    const handler = (taskKey: string | null) => {
+      if (!taskKey) {
+        setSelectedTaskState(null);
+        return;
+      }
 
-  const setterRef = useRef(setSelectedTaskState);
-  externalSetSelectedTask = { setter: setterRef.current, getTask, onSelect };
+      const task = pertData.tasks.get(taskKey) ?? null;
+      setSelectedTaskState(task ? taskKey : null);
+      if (task) {
+        onSelect?.(task);
+      }
+    };
+
+    taskSelectionService.register(handler);
+    return () => {
+      taskSelectionService.register(null);
+    };
+  }, [onSelect, pertData.tasks]);
 
   useEffect(() => {
     const tasksHash = JSON.stringify(tasks);
     if (tasksHashRef.current !== tasksHash) {
       calculatePertResults(tasks);
-      setSelectedTask(null);
+      taskSelectionService.setSelectedTask(null);
       tasksHashRef.current = tasksHash;
     }
   }, [tasks, calculatePertResults]);

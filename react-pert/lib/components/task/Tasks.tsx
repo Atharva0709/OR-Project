@@ -1,6 +1,6 @@
 import React, { useMemo, useCallback } from "react";
 import styles from "./task.module.css";
-import { setSelectedTask } from "../../components/Pert/PertChart";
+import { setSelectedTask } from "../../context/taskSelection";
 import TaskLevel from "./TaskLevel";
 import { Task } from "../../types/global.types";
 

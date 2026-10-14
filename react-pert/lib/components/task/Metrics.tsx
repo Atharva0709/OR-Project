@@ -8,21 +8,26 @@ interface TaskMetricsProps {
   dimensions: TaskDimensions;
 }
 
+const formatVal = (v: number): string => {
+  if (v === undefined || isNaN(v)) return "0";
+  return Number.isInteger(v) ? String(v) : v.toFixed(1);
+};
+
 const Metrics: React.FC<TaskMetricsProps> = ({ task, x, y, dimensions }) => {
   const { halfRadius, twoThirdsRadius } = dimensions;
   return (
     <>
       <text x={x - halfRadius} y={y - twoThirdsRadius} fill="black">
-        {task.earlyStart}
+        {formatVal(task.earlyStart)}
       </text>
       <text x={x + halfRadius} y={y - twoThirdsRadius} fill="black">
-        {task.earlyFinish}
+        {formatVal(task.earlyFinish)}
       </text>
       <text x={x - halfRadius} y={y + twoThirdsRadius} fill="black">
-        {task.lateStart}
+        {formatVal(task.lateStart)}
       </text>
       <text x={x + halfRadius} y={y + twoThirdsRadius} fill="black">
-        {task.lateFinish}
+        {formatVal(task.lateFinish)}
       </text>
     </>
   );

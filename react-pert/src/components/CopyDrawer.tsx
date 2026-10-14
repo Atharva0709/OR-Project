@@ -10,6 +10,7 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { PertStyles } from "@@/lib/main";
 import { Check, Copy } from "lucide-react";
+import { THEME } from "@/constants/theme";
 
 interface CopyDrawerProps {
   styles: PertStyles;
@@ -36,7 +37,7 @@ export const CopyDrawer = memo(({ styles }: CopyDrawerProps) => {
       }
 
       document.body.removeChild(input);
-    } catch (error) {
+    } catch (error: unknown) {
       console.error("Copy failed", error);
     }
   };
@@ -45,20 +46,22 @@ export const CopyDrawer = memo(({ styles }: CopyDrawerProps) => {
     <div className="justify-self-end">
       <Drawer>
         <DrawerTrigger asChild>
-          {/* Black pill button */}
           <button
+            type="button"
+            aria-label="Open Copy Styles Dialog"
             style={{
-              backgroundColor: "#000000",
-              color: "#ffffff",
-              borderRadius: 18,
+              backgroundColor: THEME.colors.ink,
+              color: THEME.colors.canvas,
+              borderRadius: THEME.dimensions.borderRadiusPill,
               padding: "4px 12px",
-              fontSize: 13,
-              fontFamily: "'Roboto', sans-serif",
-              fontWeight: 400,
+              fontSize: 12,
+              fontFamily: THEME.typography.fontFamily,
+              fontWeight: 500,
               border: "none",
               cursor: "pointer",
               lineHeight: 1,
             }}
+            className="hover:opacity-85 shadow-sm active:scale-95 transition-opacity focus:outline-none focus:ring-2 focus:ring-[#fa9000]"
           >
             Copy Styles
           </button>
@@ -66,44 +69,47 @@ export const CopyDrawer = memo(({ styles }: CopyDrawerProps) => {
 
         <DrawerContent className="w-full">
           <div className="mx-auto w-full max-w-2xl">
-            {/* Night-navy header strip */}
-            <DrawerHeader style={{ backgroundColor: "#100e2f", padding: "16px 24px" }}>
-              <DrawerTitle style={{ color: "#ffffff", fontFamily: "'Roboto', sans-serif", fontWeight: 700, fontSize: 18 }}>
-                Copy Styles
-              </DrawerTitle>
-              <DrawerDescription style={{ color: "#dddddd", fontSize: 14 }} />
-            </DrawerHeader>
-
-            {/* White content area */}
-            <div className="p-4 pt-0 relative bg-white">
-              <button
-                onClick={handleCopyStyles}
-                className="group absolute top-4 right-8"
+            <DrawerHeader style={{ backgroundColor: THEME.colors.navy, padding: "16px 24px" }}>
+              <DrawerTitle
                 style={{
-                  background: "none",
-                  border: "none",
-                  cursor: "pointer",
-                  color: "#595959",
-                  padding: 4,
+                  color: THEME.colors.canvas,
+                  fontFamily: THEME.typography.fontFamily,
+                  fontWeight: 700,
+                  fontSize: 18,
                 }}
               >
+                Copy Styles JSON
+              </DrawerTitle>
+              <DrawerDescription style={{ color: "#d0d0d0", fontSize: 13 }}>
+                Copy current chart styling parameters in JSON format.
+              </DrawerDescription>
+            </DrawerHeader>
+
+            <div className="p-4 pt-0 relative bg-white">
+              <button
+                type="button"
+                onClick={handleCopyStyles}
+                aria-label="Copy JSON to clipboard"
+                className="group absolute top-4 right-8 p-1.5 text-[#404040] hover:text-[#111111] focus:outline-none focus:ring-1 focus:ring-[#fa9000] rounded"
+              >
                 <Copy style={{ width: 16, height: 16 }} className="transition-opacity group-[.success]:hidden" />
-                <Check style={{ width: 16, height: 16, color: "#009e60" }} className="hidden transition-opacity group-[.success]:block" />
+                <Check style={{ width: 16, height: 16, color: THEME.colors.successGreen }} className="hidden transition-opacity group-[.success]:block" />
               </button>
               <Textarea
                 defaultValue={jsonInput}
-                id="jsonInput"
+                id="jsonStylesInput"
+                aria-label="Styles JSON Content"
                 style={{
                   minHeight: 300,
                   resize: "none",
                   fontFamily: "monospace",
                   fontSize: 13,
-                  border: "1px solid #d8d8d8",
-                  borderRadius: 2,
-                  backgroundColor: "#ffffff",
-                  color: "#000000",
+                  border: `1px solid ${THEME.colors.border}`,
+                  borderRadius: THEME.dimensions.borderRadiusSm,
+                  backgroundColor: THEME.colors.canvas,
+                  color: THEME.colors.ink,
                 }}
-                className="overflow-y-auto [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-border"
+                className="overflow-y-auto"
               />
             </div>
           </div>

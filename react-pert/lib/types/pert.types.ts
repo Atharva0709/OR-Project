@@ -5,7 +5,7 @@ import { TaskInput } from "./global.types";
 export type InternalTaskResultType = Map<string, Task>;
 
 // dont care about this type
-interface ResultType {
+export interface ResultType {
   /**
    * Levels of tasks.
    */
@@ -22,6 +22,18 @@ interface ResultType {
    * Project Duration.
    */
   projectDuration: number;
+  /**
+   * Total variance along the critical path.
+   */
+  projectVariance: number;
+  /**
+   * Standard deviation of project duration.
+   */
+  projectStdDev: number;
+  /**
+   * Note regarding critical path selection when multiple paths exist.
+   */
+  highestVariancePathNote?: string;
 }
 
 // dont care about this type

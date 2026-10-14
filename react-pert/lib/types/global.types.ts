@@ -1,11 +1,24 @@
 export type TaskInput = {
   key: string;
   text: string;
-  duration: number;
+  duration?: number;
+  optimistic?: number;
+  mostLikely?: number;
+  pessimistic?: number;
   dependsOn?: string[];
 };
 
-export type Task = TaskInput & {
+export type Task = {
+  key: string;
+  text: string;
+  duration: number;
+  expectedDuration: number;
+  variance: number;
+  stdDev: number;
+  optimistic?: number;
+  mostLikely?: number;
+  pessimistic?: number;
+  dependsOn?: string[];
   earlyStart: number;
   earlyFinish: number;
   lateStart: number;

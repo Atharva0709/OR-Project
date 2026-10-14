@@ -7,7 +7,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Slider } from "@/components/ui/slider";
@@ -15,6 +14,8 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Color } from "./Color";
 import { CopyDrawer } from "./CopyDrawer";
 import { Separator } from "./ui/separator";
+import { THEME } from "@/constants/theme";
+import { UI_STRINGS } from "@/constants/strings";
 
 const fontFamilies = [
   "Arial",
@@ -27,21 +28,27 @@ const fontFamilies = [
 
 const fontSizes: FontSize[] = ["sm", "md", "lg", "xl", "2xl", "3xl"];
 
-type StyleOptionsProps = PertStyles & {
-  onStyleChange: (key: keyof PertStyles, value: any) => void;
-};
+interface StyleOptionsProps extends PertStyles {
+  onStyleChange: <K extends keyof PertStyles>(key: K, value: PertStyles[K]) => void;
+}
 
-/** Section eyebrow used throughout the style panel */
 function SectionEyebrow({ label }: { label: string }) {
   return (
     <div className="flex items-center gap-2 mb-3">
-      <div style={{ width: 4, height: 16, backgroundColor: "#fa9000", flexShrink: 0 }} />
+      <div
+        style={{
+          width: THEME.dimensions.eyebrowBarWidth,
+          height: 16,
+          backgroundColor: THEME.colors.primary,
+          flexShrink: 0,
+        }}
+      />
       <span
         style={{
-          fontFamily: "'Roboto', sans-serif",
-          fontSize: 11,
-          fontWeight: 300,
-          color: "#595959",
+          fontFamily: THEME.typography.fontFamily,
+          fontSize: THEME.typography.fontSizeXs,
+          fontWeight: 700,
+          color: THEME.colors.inkMuted,
           textTransform: "uppercase",
           letterSpacing: 1.2,
         }}
@@ -54,37 +61,39 @@ function SectionEyebrow({ label }: { label: string }) {
 
 export const StyleOptions = memo(({ onStyleChange, ...styles }: StyleOptionsProps) => {
   const handleChange = useCallback(
-    (key: keyof PertStyles, value: any) => {
+    <K extends keyof PertStyles>(key: K, value: PertStyles[K]) => {
       onStyleChange(key, value);
     },
     [onStyleChange]
   );
 
   return (
-    <ScrollArea className="h-[calc(100vh-3.5rem-44px)] px-4 pb-4">
+    <ScrollArea className="h-[calc(100dvh-56px-44px)] px-4 pb-6">
       <div className="space-y-6 pt-4">
         {/* Header row */}
         <div className="flex justify-between items-center">
           <span
             style={{
-              fontFamily: "'Roboto', sans-serif",
-              fontSize: 13,
+              fontFamily: THEME.typography.fontFamily,
+              fontSize: THEME.typography.fontSizeSm,
               fontWeight: 700,
-              color: "#000000",
+              color: THEME.colors.ink,
               textTransform: "uppercase",
               letterSpacing: 0.5,
             }}
           >
-            Chart Properties
+            {UI_STRINGS.sidebar.sections.chartProperties}
           </span>
           <CopyDrawer styles={styles} />
         </div>
 
         {/* Chart Settings */}
-        <div className="space-y-4 pb-4" style={{ borderBottom: "1px solid #d8d8d8" }}>
-          <SectionEyebrow label="Chart Settings" />
+        <div className="space-y-4 pb-4 border-b border-[#d8d8d8]">
+          <SectionEyebrow label={UI_STRINGS.sidebar.sections.chartSettings} />
           <div className="flex justify-between items-center">
-            <Label style={{ color: "#333333", fontSize: 14, fontWeight: 400 }}>Chart Background</Label>
+            <Label htmlFor="chart-bg" className="text-xs font-medium text-[#111111]">
+              Chart Background
+            </Label>
             <Separator className="flex-1 mx-2" />
             <Color
               color={styles.chartBackground}
@@ -93,7 +102,9 @@ export const StyleOptions = memo(({ onStyleChange, ...styles }: StyleOptionsProp
             />
           </div>
           <div className="flex items-center justify-between">
-            <Label htmlFor="disable-grid" style={{ color: "#333333", fontSize: 14, fontWeight: 400 }}>Disable Grid</Label>
+            <Label htmlFor="disable-grid" className="text-xs font-medium text-[#111111]">
+              Disable Grid
+            </Label>
             <Switch
               id="disable-grid"
               checked={styles.disableGrid}
@@ -101,7 +112,9 @@ export const StyleOptions = memo(({ onStyleChange, ...styles }: StyleOptionsProp
             />
           </div>
           <div className="flex justify-between items-center">
-            <Label htmlFor="grid-color" style={{ color: "#333333", fontSize: 14, fontWeight: 400 }}>Grid Color</Label>
+            <Label htmlFor="grid-color" className="text-xs font-medium text-[#111111]">
+              Grid Color
+            </Label>
             <Separator className="flex-1 mx-2" />
             <Color
               color={styles.gridColor}
@@ -112,10 +125,12 @@ export const StyleOptions = memo(({ onStyleChange, ...styles }: StyleOptionsProp
         </div>
 
         {/* Task Node Settings */}
-        <div className="space-y-4 pb-4" style={{ borderBottom: "1px solid #d8d8d8" }}>
-          <SectionEyebrow label="Task Node Settings" />
+        <div className="space-y-4 pb-4 border-b border-[#d8d8d8]">
+          <SectionEyebrow label={UI_STRINGS.sidebar.sections.taskNodeSettings} />
           <div className="space-y-2">
-            <Label style={{ color: "#333333", fontSize: 14, fontWeight: 400 }}>Task Size ({styles.taskSize}px)</Label>
+            <Label className="text-xs font-medium text-[#111111]">
+              Task Size ({styles.taskSize}px)
+            </Label>
             <Slider
               value={[styles.taskSize || 100]}
               min={70}
@@ -125,12 +140,14 @@ export const StyleOptions = memo(({ onStyleChange, ...styles }: StyleOptionsProp
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="font-family" style={{ color: "#333333", fontSize: 14, fontWeight: 400 }}>Font Family</Label>
+            <Label htmlFor="font-family" className="text-xs font-medium text-[#111111]">
+              Font Family
+            </Label>
             <Select
               value={styles.fontFamily}
               onValueChange={(value) => handleChange("fontFamily", value)}
             >
-              <SelectTrigger>
+              <SelectTrigger id="font-family">
                 <SelectValue placeholder="Select font family" />
               </SelectTrigger>
               <SelectContent>
@@ -143,25 +160,27 @@ export const StyleOptions = memo(({ onStyleChange, ...styles }: StyleOptionsProp
             </Select>
           </div>
           <div className="space-y-2">
-            <Label htmlFor="font-size" style={{ color: "#333333", fontSize: 14, fontWeight: 400 }}>Font Size</Label>
+            <Label htmlFor="font-size" className="text-xs font-medium text-[#111111]">
+              Font Size
+            </Label>
             <Select
               value={String(styles.fontSize)}
-              onValueChange={(value) => handleChange("fontSize", value)}
+              onValueChange={(value) => handleChange("fontSize", value as FontSize)}
             >
-              <SelectTrigger>
+              <SelectTrigger id="font-size">
                 <SelectValue placeholder="Select font size" />
               </SelectTrigger>
               <SelectContent>
                 {fontSizes.map((size) => (
-                  <SelectItem key={size} value={String(size)}>
-                    {size}
+                  <SelectItem key={String(size)} value={String(size)}>
+                    {String(size)}
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
           </div>
           <div className="flex justify-between items-center">
-            <Label htmlFor="text-color" style={{ color: "#333333", fontSize: 14, fontWeight: 400 }}>Text Color</Label>
+            <Label className="text-xs font-medium text-[#111111]">Text Color</Label>
             <Separator className="flex-1 mx-2" />
             <Color
               color={styles.textColor}
@@ -170,7 +189,7 @@ export const StyleOptions = memo(({ onStyleChange, ...styles }: StyleOptionsProp
             />
           </div>
           <div className="flex justify-between items-center">
-            <Label htmlFor="task-background" style={{ color: "#333333", fontSize: 14, fontWeight: 400 }}>Task Background</Label>
+            <Label className="text-xs font-medium text-[#111111]">Task Background</Label>
             <Separator className="flex-1 mx-2" />
             <Color
               color={styles.taskBackground}
@@ -181,10 +200,12 @@ export const StyleOptions = memo(({ onStyleChange, ...styles }: StyleOptionsProp
         </div>
 
         {/* Border Settings */}
-        <div className="space-y-4 pb-4" style={{ borderBottom: "1px solid #d8d8d8" }}>
-          <SectionEyebrow label="Border Settings" />
+        <div className="space-y-4 pb-4 border-b border-[#d8d8d8]">
+          <SectionEyebrow label={UI_STRINGS.sidebar.sections.borderSettings} />
           <div className="space-y-2">
-            <Label style={{ color: "#333333", fontSize: 14, fontWeight: 400 }}>Border Width ({styles.borderWidth}px)</Label>
+            <Label className="text-xs font-medium text-[#111111]">
+              Border Width ({styles.borderWidth}px)
+            </Label>
             <Slider
               value={[styles.borderWidth || 1]}
               min={1}
@@ -194,7 +215,9 @@ export const StyleOptions = memo(({ onStyleChange, ...styles }: StyleOptionsProp
             />
           </div>
           <div className="space-y-2">
-            <Label style={{ color: "#333333", fontSize: 14, fontWeight: 400 }}>Selected Border Width ({styles.selectedBorderWidth}px)</Label>
+            <Label className="text-xs font-medium text-[#111111]">
+              Selected Border Width ({styles.selectedBorderWidth}px)
+            </Label>
             <Slider
               value={[styles.selectedBorderWidth || 3]}
               min={1}
@@ -204,7 +227,9 @@ export const StyleOptions = memo(({ onStyleChange, ...styles }: StyleOptionsProp
             />
           </div>
           <div className="space-y-2">
-            <Label style={{ color: "#333333", fontSize: 14, fontWeight: 400 }}>Hover Border Width ({styles.hoverBorderWidth}px)</Label>
+            <Label className="text-xs font-medium text-[#111111]">
+              Hover Border Width ({styles.hoverBorderWidth}px)
+            </Label>
             <Slider
               value={[styles.hoverBorderWidth || 2]}
               min={1}
@@ -214,7 +239,7 @@ export const StyleOptions = memo(({ onStyleChange, ...styles }: StyleOptionsProp
             />
           </div>
           <div className="flex justify-between items-center">
-            <Label htmlFor="border-color" style={{ color: "#333333", fontSize: 14, fontWeight: 400 }}>Border Color</Label>
+            <Label className="text-xs font-medium text-[#111111]">Border Color</Label>
             <Separator className="flex-1 mx-2" />
             <Color
               color={styles.borderColor}
@@ -223,7 +248,7 @@ export const StyleOptions = memo(({ onStyleChange, ...styles }: StyleOptionsProp
             />
           </div>
           <div className="flex justify-between items-center">
-            <Label htmlFor="selected-border-color" style={{ color: "#333333", fontSize: 14, fontWeight: 400 }}>Selected Border Color</Label>
+            <Label className="text-xs font-medium text-[#111111]">Selected Border Color</Label>
             <Separator className="flex-1 mx-2" />
             <Color
               color={styles.selectedBorderColor}
@@ -234,10 +259,12 @@ export const StyleOptions = memo(({ onStyleChange, ...styles }: StyleOptionsProp
         </div>
 
         {/* Arrow Settings */}
-        <div className="space-y-4 pb-4" style={{ borderBottom: "1px solid #d8d8d8" }}>
-          <SectionEyebrow label="Arrow Settings" />
+        <div className="space-y-4 pb-4 border-b border-[#d8d8d8]">
+          <SectionEyebrow label={UI_STRINGS.sidebar.sections.arrowSettings} />
           <div className="space-y-2">
-            <Label style={{ color: "#333333", fontSize: 14, fontWeight: 400 }}>Arrow Width ({styles.arrowWidth}px)</Label>
+            <Label className="text-xs font-medium text-[#111111]">
+              Arrow Width ({styles.arrowWidth}px)
+            </Label>
             <Slider
               value={[styles.arrowWidth || 2]}
               min={1}
@@ -247,7 +274,7 @@ export const StyleOptions = memo(({ onStyleChange, ...styles }: StyleOptionsProp
             />
           </div>
           <div className="flex justify-between items-center">
-            <Label htmlFor="arrow-color" style={{ color: "#333333", fontSize: 14, fontWeight: 400 }}>Arrow Color</Label>
+            <Label className="text-xs font-medium text-[#111111]">Arrow Color</Label>
             <Separator className="flex-1 mx-2" />
             <Color
               color={styles.arrowColor}
@@ -256,7 +283,7 @@ export const StyleOptions = memo(({ onStyleChange, ...styles }: StyleOptionsProp
             />
           </div>
           <div className="flex justify-between items-center">
-            <Label htmlFor="critical-color" style={{ color: "#333333", fontSize: 14, fontWeight: 400 }}>Critical Path Color</Label>
+            <Label className="text-xs font-medium text-[#111111]">Critical Path Color</Label>
             <Separator className="flex-1 mx-2" />
             <Color
               color={styles.criticalColor}
@@ -268,9 +295,11 @@ export const StyleOptions = memo(({ onStyleChange, ...styles }: StyleOptionsProp
 
         {/* Gap Settings */}
         <div className="space-y-4">
-          <SectionEyebrow label="Gap Settings" />
+          <SectionEyebrow label={UI_STRINGS.sidebar.sections.gapSettings} />
           <div className="space-y-2">
-            <Label style={{ color: "#333333", fontSize: 14, fontWeight: 400 }}>Horizontal Gap ({styles.gap?.x ?? styles.taskSize}px)</Label>
+            <Label className="text-xs font-medium text-[#111111]">
+              Horizontal Gap ({styles.gap?.x ?? styles.taskSize}px)
+            </Label>
             <Slider
               value={[styles.gap?.x ?? styles.taskSize ?? 100]}
               min={50}
@@ -282,7 +311,9 @@ export const StyleOptions = memo(({ onStyleChange, ...styles }: StyleOptionsProp
             />
           </div>
           <div className="space-y-2">
-            <Label style={{ color: "#333333", fontSize: 14, fontWeight: 400 }}>Vertical Gap ({styles.gap?.y ?? styles.taskSize}px)</Label>
+            <Label className="text-xs font-medium text-[#111111]">
+              Vertical Gap ({styles.gap?.y ?? styles.taskSize}px)
+            </Label>
             <Slider
               value={[styles.gap?.y ?? styles.taskSize ?? 100]}
               min={50}

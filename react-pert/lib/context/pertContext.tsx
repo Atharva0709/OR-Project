@@ -13,13 +13,16 @@ const EMPTY_RESULT: InternalPertResultType = {
   links: [],
   criticalPaths: [],
   projectDuration: 0,
+  projectVariance: 0,
+  projectStdDev: 0,
+  highestVariancePathNote: undefined,
 };
 
 const pertContext = createContext<InternalPertContextType | null>(null);
 const internalPertContext = createContext<InternalPertContextType | null>(null);
 
 const createPertProvider = (Context: React.Context<InternalPertContextType | null>) => {
-  return ({ children }: { children: ReactNode }) => {
+  return function PertProviderComponent({ children }: { children: ReactNode }) {
     const [pertData, setPertResults] = useState<InternalPertResultType>(EMPTY_RESULT);
     const [error, setError] = useState<string | null>(null);
 
@@ -28,10 +31,10 @@ const createPertProvider = (Context: React.Context<InternalPertContextType | nul
         const results: InternalPertResultType = new PertCalculator(data).solve();
         setPertResults(results);
         setError(null);
-      } catch (err: any) {
-        console.error(err);
+      } catch (err: unknown) {
+        const msg = err instanceof Error ? err.message : String(err);
         setPertResults(EMPTY_RESULT);
-        setError(err.message);
+        setError(msg);
       }
     }, []);
 
@@ -58,31 +61,42 @@ export const usePert = (options: PertOptions = { bounds: true }) => {
     throw new Error("usePertData must be used within a PertProvider");
   }
   const tasksArr = Array.from(context.pertData.tasks.values());
-  const tasks = options?.bounds
-    ? tasksArr.slice(1, -1).map((task) => ({
-        ...task,
-        dependsOn: task.dependsOn?.includes(tasksArr[0].key) ? [] : task.dependsOn,
-      }))
-    : tasksArr;
+  const startKey = tasksArr.length > 0 ? tasksArr[0].key : undefined;
+
+  // bounds: true includes Start and Finish; bounds: false strips them
+  const tasks =
+    options?.bounds === false
+      ? tasksArr.length > 2
+        ? tasksArr.slice(1, -1).map((task) => ({
+            ...task,
+            dependsOn:
+              startKey && task.dependsOn
+                ? task.dependsOn.filter((k) => k !== startKey)
+                : task.dependsOn,
+          }))
+        : []
+      : tasksArr;
 
   return {
     ...context.pertData,
     tasks,
     error: context.error,
     projectDuration: context.pertData.projectDuration,
+    projectVariance: context.pertData.projectVariance,
+    projectStdDev: context.pertData.projectStdDev,
+    highestVariancePathNote: context.pertData.highestVariancePathNote,
   } as PertDataType;
 };
 
 export const usePertContext = () => {
   const context = useContext(pertContext);
-  if (!context) {
-    const internalContext = useContext(internalPertContext);
-    if (!internalContext) {
-      throw new Error(
-        "usePertData must be used within a PertProvider or InternalPertProvider"
-      );
-    }
-    return internalContext;
+  const internalContext = useContext(internalPertContext);
+  const active = context ?? internalContext;
+
+  if (!active) {
+    throw new Error(
+      "usePertData must be used within a PertProvider or InternalPertProvider"
+    );
   }
-  return context;
+  return active;
 };
