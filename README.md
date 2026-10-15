@@ -25,7 +25,7 @@ This platform provides:
 The project has been structured so that every mathematical algorithm, interface component, and user feature resides in its own dedicated, maintainable file:
 
 ```text
-OR-Project/
+Project Analyzer
 ├── package.json                         # Application scripts & dependencies
 ├── README.md                            # Comprehensive Operations Research documentation
 ├── DESIGN_SPECIFICATION.md              # Design system and typography specifications
